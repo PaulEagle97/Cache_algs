@@ -8,6 +8,7 @@ class Clock:
         # initialize cache values with 0s
         self._body = np.zeros((size, 2), dtype=int)
         self._pg_ptr = 0
+        self._misses = 0
 
     def get_idx(self, elem):
         # search for an idx of the element
@@ -21,6 +22,7 @@ class Clock:
         page_idx = self.get_idx(elem)
         # check for cache miss
         if len(page_idx) == 0:
+            self._misses += 1
             # move the pointer to next page with 0 chance
             while self._body[self._pg_ptr][1] != 0:
                 # nullify chance of page with 1 chance
@@ -45,21 +47,10 @@ class Clock:
     def load_str_seq(self, seq):
         # split the sequence by whitespaces
         for a_str in seq.split():
-            # run the LRU cache access procedure
+            # run the cache access procedure
             self.access(int(a_str))
 
     @property
     def state(self):
         # get a copy of cache values
-        return self._body.copy()
-
-def main():
-    seq = "1 2 3 1 3 4 2 4 1 5 6"
-    # create a cache with 4 pages
-    cache_1 = Clock(4)
-    cache_1.load_str_seq(seq)
-    print(f"Cache 1:\n{cache_1.state}")
-
-
-if __name__ == "__main__":
-    main()
+        return (self._body.copy(), self._misses)
